@@ -49,13 +49,14 @@ class Adafruit_GFX : public Print {
     drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap,
       int16_t w, int16_t h, uint16_t color),
     drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
-      uint16_t bg, uint8_t size),
+      uint16_t bg, uint8_t size, const unsigned char *used_font, uint8_t font_width),
     setCursor(int16_t x, int16_t y),
     setTextColor(uint16_t c),
     setTextColor(uint16_t c, uint16_t bg),
     setTextSize(uint8_t s),
     setTextWrap(boolean w),
-    setRotation(uint8_t r);
+    setRotation(uint8_t r),
+	printSmallNumber(unsigned long n);
 
 #if ARDUINO >= 100
   virtual size_t write(uint8_t);
@@ -70,6 +71,8 @@ class Adafruit_GFX : public Print {
   uint8_t getRotation(void);
 
  protected:
+  void write(uint8_t c, const unsigned char *used_font, uint8_t font_width);
+	 
   const int16_t
     WIDTH, HEIGHT;   // This is the 'raw' display w/h - never changes
   int16_t

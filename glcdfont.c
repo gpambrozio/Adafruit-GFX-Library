@@ -7,7 +7,24 @@
 #else
  #define PROGMEM
 #endif
+
+#include <binary.h>
  
+// Number only 3x5 font
+
+static const unsigned char small_nr_font[] PROGMEM = {
+	B0111110, B0100010, B0111110,
+	B0000000, B0111110, B0000000,
+	B0111010, B0101010, B0101110,
+	B0101010, B0101010, B0111110,
+	B0001110, B0001000, B0111110,
+	B0101110, B0101010, B0111010,
+	B0111110, B0101010, B0111010,
+	B0000010, B0000010, B0111110,
+	B0111110, B0101010, B0111110,
+	B0101110, B0101010, B0111110
+};
+
 // Standard ASCII 5x7 font
 
 static const unsigned char font[] PROGMEM = {

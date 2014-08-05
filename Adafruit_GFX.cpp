@@ -363,45 +363,68 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
   }
 }
 
+void Adafruit_GFX::printSmallNumber(unsigned long n) {
+  char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
+  char *str = &buf[sizeof(buf) - 1];
+
+  *str = 0;
+
+  do {
+    unsigned long m = n;
+    n /= 10;
+    char c = m - 10 * n;
+    *--str = c + 1;
+  } while(n);
+  
+  while (*str) {
+    write((*str++) - 1, small_nr_font, 4);
+  }
+}
+
 #if ARDUINO >= 100
 size_t Adafruit_GFX::write(uint8_t c) {
 #else
 void Adafruit_GFX::write(uint8_t c) {
 #endif
+  write(c, font, 6);
+#if ARDUINO >= 100
+  return 1;
+#endif
+}
+
+void Adafruit_GFX::write(uint8_t c, const unsigned char *used_font, uint8_t font_width) {
   if (c == '\n') {
     cursor_y += textsize*8;
     cursor_x  = 0;
   } else if (c == '\r') {
     // skip em
   } else {
-    drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor, textsize);
-    cursor_x += textsize*6;
-    if (wrap && (cursor_x > (_width - textsize*6))) {
+    drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor, textsize, used_font, font_width);
+    cursor_x += textsize*font_width;
+    if (wrap && (cursor_x > (_width - textsize*font_width))) {
       cursor_y += textsize*8;
       cursor_x = 0;
     }
   }
-#if ARDUINO >= 100
-  return 1;
-#endif
 }
 
 // Draw a character
 void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
-			    uint16_t color, uint16_t bg, uint8_t size) {
+			    uint16_t color, uint16_t bg, uint8_t size,
+				const unsigned char *used_font, uint8_t font_width) {
 
   if((x >= _width)            || // Clip right
      (y >= _height)           || // Clip bottom
-     ((x + 6 * size - 1) < 0) || // Clip left
+     ((x + font_width * size - 1) < 0) || // Clip left
      ((y + 8 * size - 1) < 0))   // Clip top
     return;
 
-  for (int8_t i=0; i<6; i++ ) {
+  for (int8_t i=0; i<font_width; i++ ) {
     uint8_t line;
-    if (i == 5) 
+    if (i == font_width - 1) 
       line = 0x0;
     else 
-      line = pgm_read_byte(font+(c*5)+i);
+      line = pgm_read_byte(used_font+(c*(font_width-1))+i);
     for (int8_t j = 0; j<8; j++) {
       if (line & 0x1) {
         if (size == 1) // default size
